@@ -45,8 +45,10 @@ module.exports = function(options , matches){
     function replace(file , filePath){
         var str = file.contents.toString();
         var arrs = str.match(reg);
-
-        if(!arrs) return;
+        if(!arrs){
+            file.isDone = true;
+            return;
+        }
 
         str = str.replace(argReg , function(reTxt){
             if(reTxt=="@@include")return reTxt;
@@ -64,11 +66,11 @@ module.exports = function(options , matches){
 
             if(!(fileUrl in files)) return;
 
-            if(files[fileUrl].isDone){
-                txt = replace(files[fileUrl] , fileUrl)
-            }else {
-                txt  = files[fileUrl].contents.toString();
+            if(!files[fileUrl].isDone){
+                replace(files[fileUrl] , fileUrl)
             }
+
+            txt  = files[fileUrl].contents.toString();
 
             var conContain = {
                 content: txt,
