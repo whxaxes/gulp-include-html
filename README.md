@@ -1,3 +1,3 @@
 # gulp-include-html
-grunt-include-html的gulp版
+[grunt-include-html](https://github.com/whxaxes/grunt-include-html)的gulp版
 
