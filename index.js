@@ -4,6 +4,10 @@ var crypto = require('crypto');
 
 module.exports = function(options , matches){
     options = options||{};
+    if(arguments.length==1 && options instanceof RegExp){
+        matches = options;
+        options = {};
+    }
 
     //匹配@@include("")
     var reg = /@{2}include\(\s*["'].*\s*["']\s*(,\s*\{[\s\S]*?\})?\)/g;
@@ -19,9 +23,6 @@ module.exports = function(options , matches){
 
     //匹配<!--#remove-->****<!--/remove-->，并且删除****中的内容
     var removeReg = /<!-*#remove-*>[\s\S]*?<!-*\/remove-*>/g
-
-    var dex = __filename.split("\\");
-    var fileConfigPath = dex.slice(0 , dex.length-2).join("/")+"/config.ir";
 
     var files = []
     var _transform = function(file , enc , done){
