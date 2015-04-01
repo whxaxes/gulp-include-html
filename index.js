@@ -45,12 +45,11 @@ module.exports = function(options , matches){
 
     function replace(file , filePath){
         var str = file.contents.toString();
-        var arrs = str.match(reg);
-        if(!arrs){
+        var arrs = str.match(reg) || [];
+        if(!arrs.length && !str.match(argReg)){
             file.isDone = true;
             return;
         }
-
         str = str.replace(argReg , function(reTxt){
             if(reTxt=="@@include")return reTxt;
             reValSync(reTxt , options , function(result){
@@ -100,10 +99,10 @@ module.exports = function(options , matches){
                 }
                 return val;
             }).replace(removeReg , '');
-
-            file.contents = new Buffer(str);
-            file.isDone = true;
         })
+
+        file.contents = new Buffer(str);
+        file.isDone = true;
     }
 
     //变量更改方法
