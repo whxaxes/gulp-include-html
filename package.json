@@ -1,6 +1,6 @@
 {
   "name": "gulp-include-html",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,6 +10,7 @@
   "license": "ISC",
 
   "dependencies":{
-    "through2": "^0.6.3"
+    "through2": "^0.6.3",
+    "ejs":"~2.3.1"
   }
 }

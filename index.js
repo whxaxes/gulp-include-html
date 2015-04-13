@@ -1,4 +1,5 @@
 var through = require("through2");
+var ejs = require("ejs");
 var url = require('url');
 var crypto = require('crypto');
 
@@ -8,6 +9,8 @@ module.exports = function(options , matches){
         matches = options;
         options = {};
     }
+
+    var useEjs = options.useEjs;
 
     //匹配@@include("")
     var reg = /@{2}include\(\s*["'].*\s*["']\s*(,\s*\{[\s\S]*?\})?\)/g;
@@ -50,13 +53,18 @@ module.exports = function(options , matches){
             file.isDone = true;
             return;
         }
-        str = str.replace(argReg , function(reTxt){
-            if(reTxt=="@@include")return reTxt;
-            reValSync(reTxt , options , function(result){
-                reTxt = result
+
+        if(useEjs){
+            str = ejs.render(str , options);
+        }else {
+            str = str.replace(argReg , function(reTxt){
+                if(reTxt=="@@include")return reTxt;
+                reValSync(reTxt , options , function(result){
+                    reTxt = result
+                })
+                return reTxt
             })
-            return reTxt
-        })
+        }
 
         arrs.forEach(function(arr){
             var fileUrl = arr.match(pathReg)[0].replace(/"|'| /g, '');
@@ -82,6 +90,7 @@ module.exports = function(options , matches){
             for(var k in options){
                 json[k] = json[k] || options[k]
             }
+            useEjs = json.useEjs;
 
             //替换变量的值
             str = str.replace(arr, function (m) {
@@ -90,14 +99,18 @@ module.exports = function(options , matches){
 
                 if (!(args = [].slice.call(conContain.args)).length) return val;
 
-                while (args.length) {
-                    var reTxt = args.pop();
+                if(useEjs){
+                    return ejs.render(val , json).replace(removeReg , '');
+                }else {
+                    while (args.length) {
+                        var reTxt = args.pop();
 
-                    reValSync(reTxt , json , function(result){
-                        val = val.replace(reTxt , result);
-                    })
+                        reValSync(reTxt , json , function(result){
+                            val = val.replace(reTxt , result);
+                        })
+                    }
+                    return val;
                 }
-                return val;
             }).replace(removeReg , '');
         })
 
