@@ -1,6 +1,7 @@
 var through = require("through2");
 var ejs = require("ejs");
 var url = require('url');
+var fs = require('fs');
 var crypto = require('crypto');
 
 module.exports = function(options , matches){
@@ -9,8 +10,6 @@ module.exports = function(options , matches){
         matches = options;
         options = {};
     }
-
-    var useEjs = options.useEjs;
 
     //匹配@@include("")
     var reg = /@{2}include\(\s*["'].*\s*["']\s*(,\s*\{[\s\S]*?\})?\)/g;
@@ -36,86 +35,70 @@ module.exports = function(options , matches){
     var _flush = function(done){
         for(var filePath in files){
             var file = files[filePath]
-            replace(file , filePath)
-
             var fileName = filePath.split("/")[filePath.split("/").length - 1];
             if (fileName.match(/^_+/g) || ((matches instanceof RegExp) && filePath.match(matches))) continue;
+
+            var json = json = deepCopy(options);
+            //合并页面里的引用
+            var template = combine(file , filePath , json);
+            //解析页面内的模板变量
+            var result = parse(template , json);
+
+            file.contents = new Buffer(result);
 
             this.push(file)
         }
         done();
     }
 
-    function replace(file , filePath){
-        var str = file.contents.toString();
+    function combine(file , filePath , json){
+        var str = (typeof file == "string")? file : file.contents.toString();
         var arrs = str.match(reg) || [];
-        if(!arrs.length && !str.match(argReg)){
-            file.isDone = true;
-            return;
-        }
 
-        if(useEjs){
-            str = ejs.render(str , options);
+        var txt,conContain,args;
+        arrs.forEach(function(arr){
+            var fileUrl = arr.match(pathReg)[0].replace(/"|'| /g, '');
+            fileUrl = url.resolve(filePath, fileUrl);
+
+            var txt = "";
+            var templateFile = files[fileUrl];
+
+            if(!templateFile){
+                try {
+                    templateFile = fs.readFileSync(fileUrl).toString()
+                } catch (e) {
+                    console.log(e)
+                    return;
+                }
+            }
+
+            //收集变量后面统一处理
+            var objs = ((objs = arr.match(jsonReg)) && eval("(" + objs[0].replace(/\r\n/, '') + ")"))||{};
+            extend(json , objs)
+
+            str = str.replace(arr , combine(templateFile , fileUrl , json))
+        })
+
+        return str;
+    }
+
+    function parse(str , json){
+        //解析公共变量
+        if(json.useEjs){
+            try{
+                str = ejs.render(str , json);
+            }catch(e){console.log(e)}
         }else {
             str = str.replace(argReg , function(reTxt){
                 if(reTxt=="@@include")return reTxt;
-                reValSync(reTxt , options , function(result){
+                reValSync(reTxt , json , function(result){
                     reTxt = result
                 })
                 return reTxt
             })
         }
 
-        arrs.forEach(function(arr){
-            var fileUrl = arr.match(pathReg)[0].replace(/"|'| /g, '');
-            fileUrl = url.resolve(filePath, fileUrl);
-
-            var txt = ""
-
-            if(!(fileUrl in files)) return;
-
-            if(!files[fileUrl].isDone){
-                replace(files[fileUrl] , fileUrl)
-            }
-
-            txt  = files[fileUrl].contents.toString();
-
-            var conContain = {
-                content: txt,
-                args: txt.match(argReg) || []
-            }
-
-            var json = arr.match(jsonReg);
-            json = (json && eval("(" + json[0].replace(/\r\n/, '') + ")"))||{};
-            for(var k in options){
-                json[k] = json[k] || options[k]
-            }
-            useEjs = json.useEjs;
-
-            //替换变量的值
-            str = str.replace(arr, function (m) {
-                var val = conContain.content;
-                var args;
-
-                if (!(args = [].slice.call(conContain.args)).length) return val;
-
-                if(useEjs){
-                    return ejs.render(val , json).replace(removeReg , '');
-                }else {
-                    while (args.length) {
-                        var reTxt = args.pop();
-
-                        reValSync(reTxt , json , function(result){
-                            val = val.replace(reTxt , result);
-                        })
-                    }
-                    return val;
-                }
-            }).replace(removeReg , '');
-        })
-
-        file.contents = new Buffer(str);
-        file.isDone = true;
+        return str;
     }
 
     //变量更改方法
@@ -129,6 +112,26 @@ module.exports = function(options , matches){
                 callback(o[arg[i]]);
                 break;
             } else o = o[arg[i]];
+        }
+    }
+
+    function deepCopy(source){
+        var result = {};
+
+        if((typeof source) !== "object") return source;
+
+        if('splice' in source) return source.slice(0);
+
+        for(var k in source){
+            result[k] = deepCopy(source[k])
+        }
+
+        return result;
+    }
+
+    function extend(obj1 , obj2){
+        for(var k in obj2){
+            obj1[k] = deepCopy(obj2[k])
         }
     }
 
