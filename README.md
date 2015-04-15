@@ -29,7 +29,7 @@ _value.html
 输出index.html：
     
     <div>
-       <span>我是内容}</span>
+       <span>我是内容</span>
     </div>
     
 如果想使用ejs模板引擎，则在上面的options中添加：useEjs:true <br>
