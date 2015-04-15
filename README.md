@@ -4,8 +4,7 @@
 
 目前添加了ejs支持，options里添加：useEjs:true 即可
 
-how to use:
-
+##Use:
     var gih = require("gulp-include-html");
     gulp.task('build-html' , function(){
         return gulp.src("./html-init/**/*.html")
@@ -31,10 +30,12 @@ _value.html
     <div>
        <span>我是内容</span>
     </div>
-    
-如果想使用ejs模板引擎，则在上面的options中添加：useEjs:true <br>
+
+##Options
+###useEjs
+如果在传入useEjs:true，模板引擎则会使用ejs进行解析<br>
 则_value.html改成
     
     <span><%= contents%></span>
 
-如果加入ejs则可以使用更丰富的js语法，ejs的具体用法请见ejs官网
+ejs的具体用法请见ejs官网
