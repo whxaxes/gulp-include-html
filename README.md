@@ -32,8 +32,8 @@ _value.html
        <span>我是内容}</span>
     </div>
     
-如果想使用ejs模板引擎，则在上面的options中添加：useEjs:true
-_value.html改成
+如果想使用ejs模板引擎，则在上面的options中添加：useEjs:true <br>
+则_value.html改成
     
     <span><%= contents%></span>
 
