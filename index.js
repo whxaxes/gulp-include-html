@@ -12,7 +12,7 @@ module.exports = function(options , matches){
     }
 
     //匹配@@include("")
-    var reg = /@{2}include\(\s*["'].*\s*["']\s*(,\s*\{[\s\S]*?\})?\)/g;
+    var reg = /@{2}include\(\s*["'].*\s*["']\s*(?:,\s*\{[\s\S]*?\})?\)/g;
 
     //获取@@include("XXX")中的"XXX"字符
     var pathReg = /["'] *.*? *["']/;
@@ -21,7 +21,7 @@ module.exports = function(options , matches){
     var jsonReg = /\{[\S\s]*\}/g;
 
     //匹配变量，变量写法可以为@@key.value或@@{key.value}
-    var argReg = /@{2}(\{|)[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)*(\s|)(\}|)/g;
+    var argReg = /@{2}(?:\{|)[a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)*(?:\s|)(?:\}|)/g;
 
     //匹配<!--#remove-->****<!--/remove-->，并且删除****中的内容
     var removeReg = /<!-*#remove-*>[\s\S]*?<!-*\/remove-*>/g

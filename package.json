@@ -1,6 +1,6 @@
 {
   "name": "gulp-include-html",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "自用gulp插件，可以分割html",
   "main": "index.js",
   "scripts": {
