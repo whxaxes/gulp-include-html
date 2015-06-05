@@ -4,7 +4,12 @@
 
 目前添加了ejs支持，options里添加：useEjs:true 即可
 
-##Use:
+##Install
+    
+    npm install gulp-include-html
+
+##Usage:
+
     var gih = require("gulp-include-html");
     gulp.task('build-html' , function(){
         return gulp.src("./html-init/**/*.html")
@@ -31,8 +36,10 @@ _value.html
        <span>我是内容</span>
     </div>
 
-##Options
+##API
+
 ###useEjs
+
 如果在传入useEjs:true，模板引擎则会使用ejs进行解析<br>
 则_value.html改成
     
