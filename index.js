@@ -2,20 +2,20 @@ var through = require("through2");
 var ejs = require("ejs");
 var url = require('url');
 var fs = require('fs');
-var crypto = require('crypto');
 
-module.exports = function(options , matches){
+//options，传入模板变量，rejectRe：剔除的目录正则
+module.exports = function(options , rejectRe){
     options = options||{};
     if(arguments.length==1 && options instanceof RegExp){
-        matches = options;
+        rejectRe = options;
         options = {};
     }
 
     //匹配@@include("")
-    var reg = /@{2}include\(\s*["'].*\s*["']\s*(?:,\s*\{[\s\S]*?\})?\)/g;
+    var reg = /@{2}include\(\s*(?:"|').*\s*(?:"|')\s*(?:,\s*\{[\s\S]*?\})?\);?/g;
 
     //获取@@include("XXX")中的"XXX"字符
-    var pathReg = /["'] *.*? *["']/;
+    var pathReg = /(?:"|')\s*(.*?)\s*(?:"|')/;
 
     //判断@@include中的json字符串
     var jsonReg = /\{[\S\s]*\}/g;
@@ -36,9 +36,9 @@ module.exports = function(options , matches){
         for(var filePath in files){
             var file = files[filePath]
             var fileName = filePath.split("/")[filePath.split("/").length - 1];
-            if (fileName.match(/^_+/g) || ((matches instanceof RegExp) && filePath.match(matches))) continue;
+            if (fileName.match(/^_+/g) || ((rejectRe instanceof RegExp) && filePath.match(rejectRe))) continue;
 
-            var json = json = deepCopy(options);
+            var json = deepCopy(options);
             //合并页面里的引用
             var template = combine(file , filePath , json);
             //解析页面内的模板变量
@@ -55,26 +55,31 @@ module.exports = function(options , matches){
         var str = (typeof file == "string")? file : file.contents.toString();
         var arrs = str.match(reg) || [];
 
-        var txt,conContain,args;
         arrs.forEach(function(arr){
-            var fileUrl = arr.match(pathReg)[0].replace(/"|'| /g, '');
-            fileUrl = url.resolve(filePath, fileUrl);
+            var fileUrl = pathReg.test(arr) ? RegExp.$1 : "";
 
-            var txt = "";
+            if(!(typeof json.baseDir==="string") || /^\.{0,2}\//.test(fileUrl)){
+                fileUrl = url.resolve(filePath, fileUrl);
+            }else {
+                fileUrl += /\.html$/.test(fileUrl) ? "" : ".html";
+                fileUrl = json.baseDir + "/" + fileUrl;
+            }
+
             var templateFile = files[fileUrl];
 
-            if(!templateFile){
-                try {
-                    templateFile = fs.readFileSync(fileUrl).toString()
-                } catch (e) {
-                    console.log(e)
+            if(!(templateFile = files[fileUrl])){
+                if(!fs.existsSync(fileUrl)){
+                    console.log("文件不存在：" + fileUrl);
                     return;
                 }
+
+                templateFile = fs.readFileSync(fileUrl).toString()
             }
 
             //收集变量后面统一处理
             var objs = ((objs = arr.match(jsonReg)) && eval("(" + objs[0].replace(/\r\n/, '') + ")"))||{};
-            extend(json , objs)
+
+            extend(json , objs);
 
             str = str.replace(arr , combine(templateFile , fileUrl , json))
         })
@@ -82,6 +87,7 @@ module.exports = function(options , matches){
         return str;
     }
 
+    //变量解析
     function parse(str , json){
         //解析公共变量
         if(json.useEjs){
