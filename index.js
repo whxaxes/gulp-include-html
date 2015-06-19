@@ -12,45 +12,44 @@ module.exports = function(options , rejectRe){
     }
 
     //匹配@@include("")
-    var reg = /@{2}include\(\s*(?:"|').*\s*(?:"|')\s*(?:,\s*\{[\s\S]*?\})?\);?/g;
+    var reg = /@@include\(\s*(?:"|').*\s*(?:"|')\s*(?:,\s*\{[\s\S]*?\})?\);?/g;
 
-    //获取@@include("XXX")中的"XXX"字符
+    //获取@@include("XXX")中的XXX字符
     var pathReg = /(?:"|')\s*(.*?)\s*(?:"|')/;
 
     //判断@@include中的json字符串
     var jsonReg = /\{[\S\s]*\}/g;
 
+    //文件后缀
+    var suffix = "html";
+
     //匹配变量，变量写法可以为@@key.value或@@{key.value}
     var argReg = /@{2}(?:\{|)[a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)*(?:\s|)(?:\}|)/g;
 
-    //匹配<!--#remove-->****<!--/remove-->，并且删除****中的内容
-    var removeReg = /<!-*#remove-*>[\s\S]*?<!-*\/remove-*>/g
-
-    var files = []
     var _transform = function(file , enc , done){
         var filepath = url.format(file.path);
-        files[filepath] = file;
-        done()
-    }
-    var _flush = function(done){
-        for(var filePath in files){
-            var file = files[filePath]
-            var fileName = filePath.split("/")[filePath.split("/").length - 1];
-            if (fileName.match(/^_+/g) || ((rejectRe instanceof RegExp) && filePath.match(rejectRe))) continue;
+        var filearr = filepath.split("/");
+        var filename = filearr[filearr.length - 1];
 
-            var json = deepCopy(options);
-            //合并页面里的引用
-            var template = combine(file , filePath , json);
-            //解析页面内的模板变量
-            var result = parse(template , json);
-
-            file.contents = new Buffer(result);
-
-            this.push(file)
+        if (filename.match(/^_/) || ((rejectRe instanceof RegExp) && filepath.match(rejectRe))){
+            done();
+            return;
         }
-        done();
+
+        var json = deepCopy(options);
+
+        //合并页面里的引用
+        var template = combine(file , filepath , json);
+
+        //解析页面内的模板变量
+        var result = parse(template , json);
+
+        file.contents = new Buffer(result);
+
+        done(null , file);
     }
 
+    //合并include的文件
     function combine(file , filePath , json){
         var str = (typeof file == "string")? file : file.contents.toString();
         var arrs = str.match(reg) || [];
@@ -61,28 +60,25 @@ module.exports = function(options , rejectRe){
             if(!(typeof json.baseDir==="string") || /^\.{0,2}\//.test(fileUrl)){
                 fileUrl = url.resolve(filePath, fileUrl);
             }else {
-                fileUrl += /\.html$/.test(fileUrl) ? "" : ".html";
                 fileUrl = json.baseDir + "/" + fileUrl;
             }
 
-            var templateFile = files[fileUrl];
+            fileUrl += (new RegExp("." + suffix + "$")).test(fileUrl) ? "" : "." + suffix;
 
-            if(!(templateFile = files[fileUrl])){
-                if(!fs.existsSync(fileUrl)){
-                    console.log("文件不存在：" + fileUrl);
-                    return;
-                }
-
-                templateFile = fs.readFileSync(fileUrl).toString()
+            if(!fs.existsSync(fileUrl)){
+                console.log("文件不存在：" + fileUrl);
+                return;
             }
 
+            var templateFile = fs.readFileSync(fileUrl).toString();
+
             //收集变量后面统一处理
-            var objs = ((objs = arr.match(jsonReg)) && eval("(" + objs[0].replace(/\r\n/, '') + ")"))||{};
+            var objs = ((objs = arr.match(jsonReg)) && eval("(" + objs[0].replace(/\r\n/, '') + ")")) || {};
 
             extend(json , objs);
 
             str = str.replace(arr , combine(templateFile , fileUrl , json))
-        })
+        });
 
         return str;
     }
@@ -91,15 +87,13 @@ module.exports = function(options , rejectRe){
     function parse(str , json){
         //解析公共变量
         if(json.useEjs){
-            try{
-                str = ejs.render(str , json);
-            }catch(e){console.log(e)}
+            str = ejs.render(str , json);
         }else {
             str = str.replace(argReg , function(reTxt){
-                if(reTxt=="@@include")return reTxt;
-                reValSync(reTxt , json , function(result){
+                if (reTxt == "@@include")return reTxt;
+                reValSync(reTxt, json, function (result) {
                     reTxt = result
-                })
+                });
                 return reTxt
             })
         }
@@ -141,5 +135,5 @@ module.exports = function(options , rejectRe){
         }
     }
 
-    return through.obj(_transform , _flush);
+    return through.obj(_transform);
 }
