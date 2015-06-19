@@ -41,7 +41,7 @@ _value.html
 
 ## API
 
-####### 下面参数均像模板参数那样传：`gih({xxx:xxx})`
+###### 下面参数均像模板参数那样传：`gih({xxx:xxx})`
 
 ### useEjs
 
