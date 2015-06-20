@@ -1,8 +1,11 @@
-<body>
-    <%= public%>
+    这个是你定义的公共参数：<%= public%>
 
     <%for(var i=0;i<list.length;i++){%>
         <div><%= list[i]%></div>
     <%}%>
+
+    @@include('test2' , {
+        source : 'ref/_content.html'
+    });
 </body>
 </html>
