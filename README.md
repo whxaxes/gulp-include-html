@@ -1,8 +1,6 @@
 # gulp-include-html
 
-自用gulp插件，可以分割html
-
-目前添加了ejs支持，options里添加：`useEjs:true` 即可
+#### 可以在前端中使用include，引用公共html，同时传入相应参数修改模板中的内容
 
 ## Install
 ```
