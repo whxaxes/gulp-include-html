@@ -33,6 +33,7 @@ module.exports = function(options){
         var filename = path.basename(filepath);
 
         if ((RE && RE.test(filepath)) || filename.match(/^_/)){
+            RE.lastIndex = 0;
             done();
             return;
         }
