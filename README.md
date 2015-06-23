@@ -15,8 +15,11 @@ gulp.task('build-html' , function(){
     return gulp.src("./html-init/**/*.html")
         .pipe(gih({
             'public':"./public/bizapp" + version,
-            'version':version
-        } , /\/modules\//g))  //正则用于过滤最后输出的文件
+            'version':version,
+            
+            baseDir:'./html/modules/',
+            ignore:\/modules\/
+        }))
         .pipe(gulp.dest("./dest"));
 });
 ```
