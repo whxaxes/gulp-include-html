@@ -3,13 +3,7 @@ var url = require('url');
 var fs = require('fs');
 
 //匹配("" , {xx:xx});
-var INC_RE_STR = '\\(\\s*(?:"|\')[\\w\\/.-]*\\s*(?:"|\')\\s*(?:,\\s*\\{[\\s\\S]*?\\})?\\);?';
-
-//获取@@include("XXX")中的XXX字符
-var PATH_RE = /(?:"|')\s*(.*?)\s*(?:"|')/;
-
-//判断@@include中的json字符串
-var JSON_RE = /\{[\S\s]*\}/g;
+var INC_RE_STR = '\\(\\s*(?:"|\')([\\w\\/.-]*\\s*)(?:"|\')\\s*(?:,\\s*(\\{[\\s\\S]*?\\}))?\\);?';
 
 //如果匹配该正则，则说明是./或者../的文件，不需使用baseDir
 var NOBASE_RE = /^\.{0,2}\//;
@@ -73,7 +67,8 @@ function combine(content , filePath , opt){
     result = result.replace(INC_RE , function(msg){
         var obj , nobj;
 
-        fileUrl = PATH_RE.test(msg) ? RegExp.$1 : "";
+        fileUrl = RegExp.$1;
+        obj = RegExp.$2 || "{}";
 
         if(!(typeof baseDir==="string") || NOBASE_RE.test(fileUrl)){
             fileUrl = url.resolve(filePath, fileUrl);
@@ -88,7 +83,7 @@ function combine(content , filePath , opt){
 
         //获取@@include里传入的参数，并转成对象
         try{
-            obj = ((obj = msg.match(JSON_RE)) && eval("(" + obj[0].replace(/\r\n/, '') + ")")) || {};
+            obj = eval("(" + obj.replace(/\r\n/, '') + ")");
         }catch(e){
             obj = {};
         }
@@ -106,10 +101,10 @@ function combine(content , filePath , opt){
 
 //获取文件字符串
 function getFileString(filepath){
-    if(/(?:\/|\\)$/.test(filepath) || !fs.existsSync(filepath)){
+    if (/(?:\/|\\)$/.test(filepath) || !fs.existsSync(filepath)) {
         console.log("\x1B[31mfile is not exist：" + filepath + "\x1B[0m");
         return null;
-    }else {
+    } else {
         return fs.readFileSync(filepath).toString()
     }
 }

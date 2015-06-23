@@ -53,6 +53,10 @@ _value.html
 ### include
 include的名称，如果设成：`include:'__include__'`，那么上面的`@@include()`则改成`__include__()`
 
+### ignore
+忽略的文件、该值可以为字符串、数组、正则，比如我设置：`ignore:"./html-init/modules"`，则`modules`下的文件将会不输出<br>
+也可以写为：`ignore:["./html-init/modules" , "./html-init/modules_2"]` 或 `ignore:/\.\/html-init\/\w+/g`
+
 ### ejs
 该参数用于设置ejs的参数，比如设成：
 ```
