@@ -62,7 +62,13 @@ function combine(content , filePath , opt){
 
     opt = opt || {};
 
-    var result = ejs.render(content , opt);
+    try{
+        var result = ejs.render(content , opt);
+    }catch(e){
+        console.log("\x1B[31mbuild " + filePath + " fail\x1B[0m");
+        console.log("\x1B[31mEjs error：" + e.message + "\x1B[0m");
+        return;
+    }
 
     result = result.replace(INC_RE , function(msg){
         var obj , nobj;

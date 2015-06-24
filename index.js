@@ -43,9 +43,10 @@ module.exports = function(options){
         if(result){
             console.log('\x1B[32mbuild '+filepath+'\x1B[0m');
             file.contents = new Buffer(result);
+            this.push(file);
         }
 
-        done(null , file);
+        done();
     });
 };
 
