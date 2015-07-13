@@ -51,7 +51,8 @@ module.exports = {
 
         if(!content) return "";
 
-        return combine(content , filepath , options);
+        //返回结果并去除空行
+        return combine(content , filepath , options).replace(/\r?\n(?:\s*\r?\n)+/g , '\n');
     }
 };
 
