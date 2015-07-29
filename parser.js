@@ -1,6 +1,7 @@
 var ejs = require("ejs");
 var url = require('url');
 var fs = require('fs');
+var path = require('path');
 
 //匹配("" , {xx:xx});
 var INC_RE_STR = '\\(\\s*(?:"|\')([\\w\\/.-]*\\s*)(?:"|\')\\s*(?:,\\s*(\\{[\\s\\S]*?\\}))?\\);?';
