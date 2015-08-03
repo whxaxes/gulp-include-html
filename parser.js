@@ -36,7 +36,7 @@ module.exports = {
         baseDir = options.baseDir;
         configName = options.configName || "config.js";
 
-        INC_RE = new RegExp(include + INC_RE_STR , 'g');
+        INC_RE = new RegExp("([ \\t]*)" + include + INC_RE_STR , 'g');
         inited = true;
     },
 
@@ -54,8 +54,7 @@ module.exports = {
 
         if(!content) return "";
 
-        //返回结果并去除空行
-        return combine(content , filepath , options).replace(/\r?\n(?:\s*\r?\n)+/g , '\n');
+        return combine(content , filepath , options);
     }
 };
 
@@ -84,9 +83,10 @@ function combine(content , filePath , opt){
 
     result = result.replace(INC_RE , function(msg){
         var obj , nobj;
+        var space = RegExp.$1;
 
-        fileUrl = RegExp.$1;
-        obj = RegExp.$2 || "{}";
+        fileUrl = RegExp.$2;
+        obj = RegExp.$3 || "{}";
 
         if(!(typeof baseDir==="string") || NOBASE_RE.test(fileUrl)){
             fileUrl = url.resolve(filePath, fileUrl);
@@ -111,7 +111,13 @@ function combine(content , filePath , opt){
 
         for(var k in obj){ nobj[k] = obj[k]; }
 
-        return combine(templateFile , fileUrl , nobj);
+        // 用于保证格式
+        var result = combine(templateFile , fileUrl , nobj);
+        var lines = result.split(/\r?\n/g);
+
+        result = space + lines.join("\n" + space);
+
+        return result;
     });
 
     return result;
