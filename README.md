@@ -46,7 +46,7 @@ After compile：
 
 ## API
 
-###### The following parameters are all input like `gih({xxx:xxx})`.
+The following parameters are all input like `gih({xxx:xxx})`.
 
 ### baseDir
 
