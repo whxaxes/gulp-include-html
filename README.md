@@ -2,7 +2,7 @@
 
 ### gulp plugin, it was used to include html
 
-You can use include to reference the public html,at the mean time input the corresponding parameter to modify the content of module. The module grammar is based on [ejs](https://github.com/mde/ejs)
+You can use include to reference the public html,at the mean time input the corresponding parameter to modify the content of module. The module grammar is based on [ejs](https://github.com/mde/ejs).
 
 ## Install
 ```
