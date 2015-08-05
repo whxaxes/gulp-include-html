@@ -2,7 +2,7 @@
 
 ### gulp plugin, it was used to include html
 
-you can use include to reference the public html,at the mean time input the corresponding parameter to modify the content of module. The module grammar is based on [ejs](https://github.com/mde/ejs)
+You can use include to reference the public html,at the mean time input the corresponding parameter to modify the content of module. The module grammar is based on [ejs](https://github.com/mde/ejs)
 
 ## Install
 ```
@@ -25,7 +25,7 @@ gulp.task('build-html' , function(){
 });
 ```
 
-the index.html before compile
+The index.html before compile
 ```
 <div>
    @@include('./_value.html' , {contents:'I am so smart'})
@@ -37,7 +37,7 @@ _value.html
 <span><%= contents%></span>
 ```   
 
-output index.html：
+after compile：
 ```
 <div>
    <span>I am so smart</span>
@@ -51,16 +51,16 @@ output index.html：
 ### baseDir
 
 It's the base position of module,if you set up this, you will input all your file in this seted up base position as the standard.<br>
-for example, when I setting like this : `baseDir:"html/module/"` <br>
-my code is : `@@include('test');` <br>
-and then the file path of the module will be explain as: `html/module/test.html`
+For example, when I setting like this : `baseDir:"html/module/"` <br>
+My code is : `@@include('test');` <br>
+And then the file path of the module will be explain as: `html/module/test.html`
 
 ### include
-if you set it as: `include:'__include__'`  the above  `@@include()` should change to  `__include__() `
+If you set it as: `include:'__include__'`  the above  `@@include()` should change to  `__include__() `
 
 ### ignore
-the ignore file. This value can be string、array、regular<br> 
-for example ：`ignore:"./html-init/modules"`，then the file of modules wouldn't be export<br>
+The ignore file. This value can be string、array、regular<br> 
+For example ：`ignore:"./html-init/modules"`，then the file of modules wouldn't be export<br>
 And it also can be written like this: `ignore:["./html-init/modules" , "./html-init/modules_2"]` or `ignore:/\.\/html-init\/\w+/g`
 
 ### ejs
@@ -70,4 +70,4 @@ gih({
     ejs : { delimiter:"$" }
 })
 ```
-ejs tag will be `<$= content$>`
+Ejs tag will be `<$= content$>`
