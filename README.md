@@ -25,7 +25,7 @@ gulp.task('build-html' , function(){
 });
 ```
 
-The index.html before compile
+The index.html before compile.
 ```
 <div>
    @@include('./_value.html' , {contents:'I am so smart'})
@@ -46,28 +46,28 @@ after compile：
 
 ## API
 
-###### The following parameters are all input like `gih({xxx:xxx})`
+###### The following parameters are all input like `gih({xxx:xxx})`.
 
 ### baseDir
 
 It's the base position of module,if you set up this, you will input all your file in this seted up base position as the standard.<br>
-For example, when I setting like this : `baseDir:"html/module/"` <br>
-My code is : `@@include('test');` <br>
-And then the file path of the module will be explain as: `html/module/test.html`
+For example, when I setting like this : `baseDir:"html/module/"`. <br>
+My code is : `@@include('test');`. <br>
+And then the file path of the module will be explain as: `html/module/test.html`.
 
 ### include
-If you set it as: `include:'__include__'`  the above  `@@include()` should change to  `__include__() `
+If you set it as: `include:'__include__'`  the above  `@@include()` should change to  `__include__() `.
 
 ### ignore
-The ignore file. This value can be string、array、regular<br> 
-For example ：`ignore:"./html-init/modules"`，then the file of modules wouldn't be export<br>
-And it also can be written like this: `ignore:["./html-init/modules" , "./html-init/modules_2"]` or `ignore:/\.\/html-init\/\w+/g`
+The ignore file. This value can be string、array、regular.<br> 
+For example ：`ignore:"./html-init/modules"`，then the file of modules wouldn't be export.<br>
+And it also can be written like this: `ignore:["./html-init/modules" , "./html-init/modules_2"]` or `ignore:/\.\/html-init\/\w+/g`.
 
 ### ejs
-It's the options of ejs
+It's the options of ejs.
 ```
 gih({
     ejs : { delimiter:"$" }
 })
 ```
-Ejs tag will be `<$= content$>`
+Ejs tag will be `<$= content$>`.
