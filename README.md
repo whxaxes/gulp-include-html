@@ -25,7 +25,7 @@ gulp.task('build-html' , function(){
 });
 ```
 
-The index.html before compile.
+Before compile.
 ```
 <div>
    @@include('./_value.html' , {contents:'I am so smart'})
@@ -37,7 +37,7 @@ _value.html
 <span><%= contents%></span>
 ```   
 
-after compile：
+After compile：
 ```
 <div>
    <span>I am so smart</span>
