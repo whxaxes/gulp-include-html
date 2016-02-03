@@ -50,6 +50,10 @@ After compile：
 
 The following parameters are all input like `gih({xxx:xxx})`.
 
+### suffix
+
+file's extend name, default is 'html'
+
 ### baseDir
 
 It's the base position of module,if you set up this, you will input all your file in this seted up base position as the standard.<br>
