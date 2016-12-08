@@ -16,7 +16,6 @@ var toString = Object.prototype.toString;
 var slice = Array.prototype.slice;
 
 var include = "@@include";
-var INC_RE;
 var baseDir;
 var inited = false;
 var configName;
@@ -36,7 +35,6 @@ module.exports = {
     baseDir = options.baseDir;
     configName = options.configName || "config.js";
 
-    INC_RE = new RegExp("([ \\t]*)" + include + INC_RE_STR, 'g');
     inited = true;
   },
 
@@ -56,12 +54,12 @@ module.exports = {
 
     if (!content) return "";
 
-    return combine(content, filepath, options);
+    return compile(content, filepath, options);
   }
 };
 
 //将@@include替换成相应文件
-function combine(content, filePath, opt) {
+function compile(content, filePath, opt) {
   var fileUrl, //include的文件地址
     templateFile; //include的文件内容
 
@@ -83,23 +81,32 @@ function combine(content, filePath, opt) {
     return;
   }
 
-  result = result.replace(INC_RE, function (msg) {
+  var fragments = [];
+  var matches;
+  var str = result;
+  var includeRegx = new RegExp("([ \\t]*)" + include + INC_RE_STR);
+
+  // 递归处理html内容
+  while(matches = str.match(includeRegx)) {
+    fragments.push(str.substring(0, matches.index));
+
     var obj, nobj;
     var space = RegExp.$1;
-
     fileUrl = RegExp.$2;
     obj = RegExp.$3 || "{}";
 
     if (!(typeof baseDir === "string") || NOBASE_RE.test(fileUrl)) {
       fileUrl = url.resolve(filePath, fileUrl);
     } else {
-      fileUrl = baseDir + "/" + fileUrl;
+      fileUrl = path.join(baseDir, fileUrl);
     }
 
     //如果文件没有文件类型扩展名，则加上
     fileUrl += (new RegExp("." + suffix + "$")).test(fileUrl) ? "" : ("." + suffix);
 
-    if (!(templateFile = getFileString(fileUrl))) return msg;
+    if (!(templateFile = getFileString(fileUrl))) {
+      continue;
+    }
 
     //获取@@include里传入的参数，并转成对象
     try {
@@ -115,16 +122,17 @@ function combine(content, filePath, opt) {
       nobj[k] = obj[k];
     }
 
-    // 用于保证格式
-    var result = combine(templateFile, fileUrl, nobj);
-    var lines = result.split(/\r?\n/g);
+    // 把引用的html文件也扔进文档流
+    fragments.push(compile(templateFile, fileUrl, nobj) || '');
 
-    result = space + lines.join("\n" + space);
+    // 更新剩余扫描的字符
+    str = str.substring(matches.index + matches[0].length);
+  }
 
-    return result;
-  });
+  fragments.push(str);
 
-  return result;
+  // 返回组装的数据
+  return fragments.join('');
 }
 
 //获取文件字符串
