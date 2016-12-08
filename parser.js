@@ -19,6 +19,7 @@ var include = "@@include";
 var baseDir;
 var inited = false;
 var configName;
+var includeRegx;
 
 module.exports = {
   config: function (options) {
@@ -34,6 +35,7 @@ module.exports = {
     include = options.include || include;
     baseDir = options.baseDir;
     configName = options.configName || "config.js";
+    includeRegx = new RegExp("([ \\t]*)" + include + INC_RE_STR);
 
     inited = true;
   },
@@ -64,7 +66,7 @@ function compile(content, filePath, opt) {
     templateFile; //include的文件内容
 
   //如果文件目录下存在config.js，则将以ejs模板的形式包装
-  var configPath = path.dirname(filePath) + path.sep + configName;
+  var configPath = path.join(path.dirname(filePath), configName);
   if (fs.existsSync(configPath)) {
     var delimiter = ejs.delimiter || "%";
     var configFile = "<" + delimiter + fs.readFileSync(configPath).toString() + delimiter + ">";
@@ -84,7 +86,6 @@ function compile(content, filePath, opt) {
   var fragments = [];
   var matches;
   var str = result;
-  var includeRegx = new RegExp("([ \\t]*)" + include + INC_RE_STR);
 
   // 递归处理html内容
   while(matches = str.match(includeRegx)) {

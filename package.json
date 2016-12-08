@@ -1,6 +1,6 @@
 {
   "name": "gulp-include-html",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "gulp插件，html include 工具",
   "main": "index.js",
   "scripts": {
