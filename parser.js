@@ -56,6 +56,8 @@ module.exports = {
 
     if (!content) return "";
 
+    if (!INC_RE.test(content)) return "";
+
     return combine(content, filepath, options);
   }
 };
