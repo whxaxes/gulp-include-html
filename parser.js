@@ -105,26 +105,25 @@ function compile(content, filePath, opt) {
     //如果文件没有文件类型扩展名，则加上
     fileUrl += (new RegExp("." + suffix + "$")).test(fileUrl) ? "" : ("." + suffix);
 
-    if (!(templateFile = getFileString(fileUrl))) {
-      continue;
+    // 如果有template才进一步处理
+    if (templateFile = getFileString(fileUrl)) {
+      //获取@@include里传入的参数，并转成对象
+      try {
+        obj = eval("(" + obj.replace(/\r\n/, '') + ")");
+      } catch (e) {
+        obj = {};
+      }
+
+      //将参数对象拷贝，并且与include里传入的参数合并
+      nobj = deepCopy(opt);
+
+      for (var k in obj) {
+        nobj[k] = obj[k];
+      }
+
+      // 把引用的html文件也扔进文档流
+      fragments.push(compile(templateFile, fileUrl, nobj) || '');
     }
-
-    //获取@@include里传入的参数，并转成对象
-    try {
-      obj = eval("(" + obj.replace(/\r\n/, '') + ")");
-    } catch (e) {
-      obj = {};
-    }
-
-    //将参数对象拷贝，并且与include里传入的参数合并
-    nobj = deepCopy(opt);
-
-    for (var k in obj) {
-      nobj[k] = obj[k];
-    }
-
-    // 把引用的html文件也扔进文档流
-    fragments.push(compile(templateFile, fileUrl, nobj) || '');
 
     // 更新剩余扫描的字符
     str = str.substring(matches.index + matches[0].length);
