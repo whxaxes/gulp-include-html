@@ -2,7 +2,7 @@
 
 ### gulp plugin, it was used to include html
 
-You can use include to reference the public html,at the mean time input the corresponding parameter to modify the content of module. The module grammar is based on [ejs](https://github.com/mde/ejs).
+You can use include to reference the public HTML, at the mean time input the corresponding parameter to modify the content of the module. The module grammar is based on [ejs](https://github.com/mde/ejs).
 
 ## Install
 ```
@@ -56,10 +56,10 @@ file's extend name, default is 'html'
 
 ### baseDir
 
-It's the base position of module,if you set up this, you will input all your file in this seted up base position as the standard.<br>
+It's the base position of the module, if you set up this, you will input all your file in this setup base position as the standard.<br>
 For example, when I setting like this : `baseDir:"html/module/"`. <br>
 My code is : `@@include('test');`. <br>
-And then the file path will be explain as: `html/module/test.html`.
+And then the file path will be explained as: `html/module/test.html`.
 
 ### include
 If you set it as: `include:'__include__'`  the above  `@@include()` should change to  `__include__() `.
