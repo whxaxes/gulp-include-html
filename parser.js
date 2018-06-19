@@ -31,7 +31,7 @@ module.exports = {
       }
     }
 
-    suffix = options.suffix || suffix;
+    suffix = ('suffix' in options) ? options.suffix : suffix;
     include = options.include || include;
     baseDir = options.baseDir;
     configName = options.configName || "config.js";
